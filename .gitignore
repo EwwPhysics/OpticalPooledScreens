@@ -6,8 +6,9 @@ __pycache__/
 *$py.class
 
 venv/
-ops_lasagna.egg-info/
+ops_lasagna.egg-info
+
+.idea/
 
 notebooks/
-example/
 example_notebooks/.ipynb_checkpoints/
