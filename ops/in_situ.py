@@ -250,12 +250,13 @@ def call_barcodes(df_bases, Y, cycles=12, channels=4):
     bases = sorted(set(df_bases[CHANNEL]))
     if any(len(x) != 1 for x in bases):
         raise ValueError('supplied weird bases: {0}'.format(bases))
+
     df_reads = df_bases.drop_duplicates([WELL, TILE, READ]).copy()
     df_reads[BARCODE] = call_bases_fast(Y.reshape(-1, cycles, channels), bases)
     Q = quality(Y.reshape(-1, cycles, channels))
     # needed for performance later
     for i in range(len(Q[0])):
-        df_reads['Q_%d' % i] = Q[:, i]
+        df_reads[f'Q_{i}'] = Q[:, i]
 
     return (df_reads
             .assign(Q_min=lambda x: x.filter(regex='Q_\d+').min(axis=1))

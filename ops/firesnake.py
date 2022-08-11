@@ -552,7 +552,7 @@ class Snake():
 
         df_reads = (df_bases
             .pipe(ops.in_situ.clean_up_bases)
-            .pipe(ops.in_situ.do_median_call, cycles, channels=channels,
+            .pipe(ops.in_situ.do_median_call, cycles=cycles, channels=channels,
                 correction_only_in_cells=correction_only_in_cells)
             )
 
