@@ -11,9 +11,6 @@ ops_lasagna.egg-info
 .idea/
 
 notebooks/
-example_notebooks/.ipynb_checkpoints/
-example_notebooks/example_ngs_analysis.ipynb
-example_notebooks/example_pool_design.ipynb
 
 example/.snakemake/
 example/experimentC/process_ipynb/10X_A1_Tile-107.aligned.tif
