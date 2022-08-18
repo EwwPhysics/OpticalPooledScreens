@@ -12,7 +12,10 @@ ops_lasagna.egg-info
 
 notebooks/
 
-projects/example/.snakemake/
 projects/example/experimentC/process_ipynb/10X_A1_Tile-107.aligned.tif
 projects/example/experimentC/process_ipynb/10X_A1_Tile-107.log.tif
 projects/steph/
+/projects/example/.snakemake/
+resources/
+scripts/
+example_pool/
