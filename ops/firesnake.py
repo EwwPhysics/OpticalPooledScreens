@@ -101,7 +101,7 @@ class Snake():
                                 window=window, upsample_factor=upsample_factor)
         elif method == 'SBS_mean':
             # calculate cycle offsets using the average of SBS channels
-            target = Align.apply_window(aligned[:, n:], window=window).max(axis=1)
+            target = Align.apply_window(aligned, window=window).max(axis=1)
             normed = Align.normalize_by_percentile(target)
             normed[normed > cutoff] = cutoff
             offsets = Align.calculate_offsets(normed, upsample_factor=upsample_factor)
