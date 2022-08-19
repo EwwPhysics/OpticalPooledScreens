@@ -179,6 +179,9 @@ class Align:
     @staticmethod
     def apply_offsets(data_, offsets):
         warped = []
+        # print(offsets)
+        # x_offset = max(abs(x[0]) for x in offsets)
+        # y_offset = max(abs(x[1]) for x in offsets)
         for frame, offset in zip(data_, offsets):
             if offset[0] == 0 and offset[1] == 0:
                 warped += [frame]
@@ -188,7 +191,8 @@ class Align:
                 frame_ = skimage.transform.warp(frame, st, preserve_range=True)
                 warped += [frame_.astype(data_.dtype)]
 
-        return np.array(warped)
+        # print(x_offset, y_offset)
+        return np.array(warped)#[:, max(abs(x[0]) for x in offsets):, max(abs(x[1]) for x in offsets):]
 
     @staticmethod
     def align_within_cycle(data_, upsample_factor=4, window=1, q1=0, q2=90):

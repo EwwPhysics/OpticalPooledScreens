@@ -84,7 +84,7 @@ def name_file(description, **more_description):
     if 'cycle' in d:
         d['first'] = '{mag}_{cycle}_{well}'.format(**d)
     else:
-        d['first'] = '{mag}_{well}'.format(**d)
+        d['first'] = '{mag}_Well-{well}'.format(**d)
 
     # positions can be called either tile or site (e.g., tiles are in physical order
     # and sites are in acquisition order)

@@ -99,6 +99,7 @@ class Snake():
             # align cycles using the DAPI channel
             aligned = Align.align_between_cycles(aligned, channel_index=0, 
                                 window=window, upsample_factor=upsample_factor)
+            return aligned
         elif method == 'SBS_mean':
             # calculate cycle offsets using the average of SBS channels
             target = Align.apply_window(aligned, window=window).max(axis=1)
@@ -106,10 +107,14 @@ class Snake():
             normed[normed > cutoff] = cutoff
             offsets = Align.calculate_offsets(normed, upsample_factor=upsample_factor)
             # apply cycle offsets to each channel
+            o = offsets.copy().astype(int)
             for channel in range(aligned.shape[1]):
                 aligned[:, channel] = Align.apply_offsets(aligned[:, channel], offsets)
 
-        return aligned
+            x_offsets = np.sort(o[:, 0])
+            y_offsets = np.sort(o[:, 1])
+
+            return aligned[:, :, abs(x_offsets[0]):-x_offsets[-1], abs(y_offsets[0]):-y_offsets[-1]], x_offsets, y_offsets
 
     @staticmethod
     def _align_by_DAPI(data_1, data_2, channel_index=0, upsample_factor=2, 
