@@ -85,7 +85,6 @@ class Snake():
 
         assert data.ndim == 4, 'Input data must have dimensions CYCLE, CHANNEL, I, J'
 
-        # align SBS channels for each cycle
         aligned = data.copy()
 
         if align_channels is not None:
@@ -93,7 +92,6 @@ class Snake():
                 x, window=window, upsample_factor=upsample_factor)
             aligned[:, align_channels] = np.array(
                 [align_it(x) for x in aligned[:, align_channels]])
-            
 
         if method == 'DAPI':
             # align cycles using the DAPI channel

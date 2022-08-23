@@ -7,9 +7,6 @@ __pycache__/
 
 venv/
 ops_lasagna.egg-info
-resources/
-scripts/
-example_pool/
 .idea/
 
 projects/example/experimentC/process_ipynb/
