@@ -566,7 +566,7 @@ class Snake():
         return df_reads
 
     @staticmethod
-    def call_cells(df_reads, df_pool=None, q_min=0.05):
+    def call_cells(df_reads, df_pool=None, q_min=0.001):
         """Call the most-common barcode reads for each cell. If df_pool is supplied,
         prioritizes reads mapping to expected sequences.
 

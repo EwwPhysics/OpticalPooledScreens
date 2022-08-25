@@ -26,7 +26,7 @@ def run(well: int,
         os.chdir(os.path.join(*home, 'projects', project_name))
         print(os.getcwd())
 
-    wildcards = dict(well=well, tile=tile)
+    wildcards = {"well": well, "tile": tile}
     if barcode_counts is None:
         barcode_counts = defaultdict(int)
 
@@ -109,7 +109,7 @@ def run(well: int,
         with open("process_ipynb/cells.csv", "w") as f:
             f.write("cell,tile,well,peak,barcode_0,count_0,barcode_1,count_1,barcode_count,sgRNA_0,gene_symbol_0,"
                     "sgRNA_1,gene_symbol_1\n")
-    if wildcards["tile"] not in pd.read_csv("process_ipynb/cells.csv")["tile"]:
+    if wildcards["tile"] not in set(pd.read_csv("process_ipynb/cells.csv")["tile"]):
         df_cells.to_csv("process_ipynb/cells.csv", mode="a", index=False, header=False)
 
     # last channel annotates base calls
@@ -127,9 +127,9 @@ def run(well: int,
         b1 = row["barcode_1"]
         if b0 in barcode_set:
             barcode_counts[b0] += int(row["count_0"])
-            in_library += 1
+            in_library += int(row["count_0"])
         if b1 in barcode_set:
             barcode_counts[b1] += int(float(row["count_1"]))
-            in_library += 1
+            in_library += int(float(row["count_1"]))
 
-    print(in_library / (df_cells.shape[0] * 2) * 100)
+    # print(in_library / (df_cells.shape[0] * 2) * 100)
