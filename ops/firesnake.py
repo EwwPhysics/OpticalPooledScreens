@@ -31,7 +31,7 @@ class Snake():
     # ALIGNMENT AND SEGMENTATION
 
     @staticmethod
-    def _align_SBS(data, method='DAPI', upsample_factor=2, window=2, cutoff=1,
+    def align_SBS(data, method='DAPI', upsample_factor=2, window=2, cutoff=1,
         align_channels=slice(1, None), keep_trailing=False):
         """Rigid alignment of sequencing cycles and channels. 
 
@@ -112,7 +112,7 @@ class Snake():
             x_offsets = np.sort(o[:, 0])
             y_offsets = np.sort(o[:, 1])
 
-            return aligned[:, :, abs(x_offsets[0]):-x_offsets[-1], abs(y_offsets[0]):-y_offsets[-1]], x_offsets, y_offsets
+            return aligned[:, :, abs(x_offsets[0]):-x_offsets[-1], abs(y_offsets[0]):-y_offsets[-1]]
 
     @staticmethod
     def _align_by_DAPI(data_1, data_2, channel_index=0, upsample_factor=2, 
@@ -159,7 +159,7 @@ class Snake():
         return aligned
         
     @staticmethod
-    def _segment_nuclei(data, threshold, area_min, area_max, smooth=1.35, radius=15):
+    def segment_nuclei(data, threshold, area_min, area_max, smooth=1.35, radius=15):
         """Find nuclei from DAPI. Uses local mean filtering to find cell foreground from aligned
         but unfiltered data, then filters identified regions by mean intensity threshold and area ranges.
 
@@ -224,7 +224,7 @@ class Snake():
         return nuclei.astype(np.uint16)
 
     @staticmethod
-    def _segment_cells(data, nuclei, threshold):
+    def segment_cells(data, nuclei, threshold):
         """Segment cells from aligned data. Matches cell labels to nuclei labels.
         Note that labels can be skipped, for example if cells are touching the 
         image boundary.
@@ -323,7 +323,7 @@ class Snake():
     # IN SITU
 
     @staticmethod
-    def _transform_log(data, sigma=1, skip_index=None):
+    def transform_log(data, sigma=1, skip_index=None):
         """Apply Laplacian-of-Gaussian filter from scipy.ndimage.
 
         Parameters
@@ -351,7 +351,7 @@ class Snake():
         return loged
 
     @staticmethod
-    def _compute_std(data, remove_index=None):
+    def compute_std(data, remove_index=None):
         """Use standard deviation over cycles, followed by mean across channels
         to estimate sequencing read locations. If only 1 cycle is present, takes
         standard deviation across channels.
@@ -385,7 +385,7 @@ class Snake():
         return consensus
     
     @staticmethod
-    def _find_peaks(data, width=5, remove_index=None):
+    def find_peaks(data, width=5, remove_index=None):
         """Find local maxima and label by difference to next-highest neighboring
         pixel. Conventionally this is used to estimate SBS read locations by inputting
         the standard deviation score as returned by Snake.compute_std().
@@ -422,7 +422,7 @@ class Snake():
         return peaks
 
     @staticmethod
-    def _max_filter(data, width, remove_index=None):
+    def max_filter(data, width, remove_index=None):
         """Apply a maximum filter in a window of `width`. Conventionally operates on Laplacian-of-Gaussian
         filtered SBS data, dilating sequencing channels to compensate for single-pixel alignment error.
 
@@ -459,7 +459,7 @@ class Snake():
         return maxed
 
     @staticmethod
-    def _extract_bases(maxed, peaks, cells, threshold_peaks, wildcards, bases='GTAC'):
+    def extract_bases(maxed, peaks, cells, threshold_peaks, wildcards, bases='GTAC'):
         """Find the signal intensity from `maxed` at each point in `peaks` above 
         `threshold_peaks`. Output is labeled by `wildcards` (e.g., well and tile) and 
         label at that position in integer mask `cells`.
@@ -516,7 +516,7 @@ class Snake():
         return df_bases
 
     @staticmethod
-    def _call_reads(df_bases, peaks=None, correction_only_in_cells=True):
+    def call_reads(df_bases, peaks=None, correction_only_in_cells=True):
         """Call reads by compensating for channel cross-talk and calling the base
         with the highest corrected intensity for each cycle. This "median correction"
         is performed independently for each tile.
@@ -566,7 +566,7 @@ class Snake():
         return df_reads
 
     @staticmethod
-    def _call_cells(df_reads, df_pool=None, q_min=0):
+    def call_cells(df_reads, df_pool=None, q_min=0.05):
         """Call the most-common barcode reads for each cell. If df_pool is supplied,
         prioritizes reads mapping to expected sequences.
 
@@ -598,22 +598,21 @@ class Snake():
                 .query('Q_min >= @q_min')
                 .pipe(ops.in_situ.call_cells))
         else:
-            prefix_length = len(df_reads.iloc[0].barcode) # get the number of completed SBS cycles
-            df_pool[PREFIX] = df_pool.apply(lambda x: x.sgRNA[:prefix_length],axis=1)
+            # prefix_length = len(df_reads.iloc[0].barcode) # get the number of completed SBS cycles
+            # df_pool[PREFIX] = df_pool.apply(lambda x: x.sgRNA[:prefix_length],axis=1)
             return (df_reads
                 .query('Q_min >= @q_min')
-                .pipe(ops.in_situ.call_cells_mapping,df_pool))
+                .pipe(ops.in_situ.call_cells_mapping, df_pool))
 
     # PHENOTYPE FEATURE EXTRACTION
 
     @staticmethod
-    def _annotate_SBS(log, df_reads):
+    def annotate_SBS(log, df_reads):
         # convert reads to a stack of integer-encoded bases
         cycles, channels, height, width = log.shape
         base_labels = ops.annotate.annotate_bases(df_reads, width=3, shape=(height, width))
         annotated = np.zeros((cycles, channels + 1, height, width), 
                             dtype=np.uint16)
-
         annotated[:, :channels] = log
         annotated[:, channels] = base_labels
         return annotated
