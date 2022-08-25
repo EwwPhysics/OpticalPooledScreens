@@ -13,6 +13,7 @@ from ops.firesnake import Snake
 def run(well: int,
         tile: int,
         cycles: int,
+        data_path: str,
         project_name: str = "steph",
         threshold_dapi: int = 2000,
         threshold_cell: int = 2500,
@@ -54,8 +55,7 @@ def run(well: int,
     barcode_set = set(barcodes["prefix"])
 
     # find sbs images and print paths
-    search = f'data/10x_Cycle*_Well{wildcards["well"]}_Point3_{str(wildcards["tile"]).rjust(4, "0")}*.ome.tif'
-    input_files = natsorted(glob(search))
+    input_files = natsorted(glob(data_path))
 
     # used to format output filenames
     description = {'mag': "10X", "well": wildcards["well"], 'tile': wildcards['tile'],
