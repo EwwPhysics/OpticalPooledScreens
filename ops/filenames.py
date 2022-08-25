@@ -62,7 +62,7 @@ def parse_filename(filename, custom_patterns=None):
     for pattern in patterns:
         match = re.match(pattern, filename)
         try:
-            result = {k:v for k,v in match.groupdict().items() if v is not None}
+            result = {k: v for k, v in match.groupdict().items() if v is not None}
             result[FILE] = filename  # convenience, not used by name_file
             return result
         except AttributeError:
@@ -79,7 +79,7 @@ def name_file(description, **more_description):
     d = dict(description)
     d.update(more_description)
     # if value is None, key is removed
-    d = {k: v for k,v in d.items() if v is not None}
+    d = {k: v for k, v in d.items() if v is not None}
 
     if 'cycle' in d:
         d['first'] = '{mag}_{cycle}_{well}'.format(**d)

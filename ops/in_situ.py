@@ -87,7 +87,7 @@ def call_cells(df_reads):
             .join(s.nth(0)['count'].rename(BARCODE_COUNT_0), on=cols)
             .join(s.nth(1)[BARCODE].rename(BARCODE_1), on=cols)
             .join(s.nth(1)['count'].rename(BARCODE_COUNT_1), on=cols)
-            .join(s['count'].sum() .rename(BARCODE_COUNT), on=cols)
+            .join(s['count'].sum().rename(BARCODE_COUNT), on=cols)
             .assign(**{BARCODE_COUNT_0: lambda x: x[BARCODE_COUNT_0].fillna(0),
                        BARCODE_COUNT_1: lambda x: x[BARCODE_COUNT_1].fillna(0)})
             .drop_duplicates(cols)
@@ -99,63 +99,59 @@ def call_cells(df_reads):
             )
 
 
-def call_cells_mapping(df_reads, df_pool=None):
+def call_cells_mapping(df_reads, df_pool):
     """Determine count of top two barcodes for each cell. If `df_pool` is
     provided, barcodes that map to designed sequences will be prioritized.
     """
-    if df_pool is not None:
-        guide_info_cols = [SGRNA, GENE_SYMBOL, GENE_ID]
-        # map reads
-        df_mapped = (pd.merge(df_reads, df_pool[[PREFIX]],
-                              how='left', left_on=BARCODE, right_on=PREFIX)
-            .assign(mapped=lambda x: pd.notnull(x[PREFIX]))
-            .drop(PREFIX, axis=1)
-            )
-        extra_col = ['mapped']
-    else:
-        df_mapped = df_reads
-        extra_col = []
+    guide_info_cols = [SGRNA, GENE_SYMBOL]
+    # map reads
+    df_mapped = (pd.merge(df_reads, df_pool[PREFIX],
+                          how='left', left_on=BARCODE, right_on=PREFIX)
+                 .assign(mapped=lambda x: pd.notnull(x[PREFIX]))
+                 .drop(PREFIX, axis=1)
+                 )
+    extra_col = ['mapped']
 
     # choose top 2 barcodes, priority given by (mapped,count)
     cols = [WELL, TILE, CELL]
     s = (df_mapped
-        .drop_duplicates([WELL, TILE, READ])
-        .groupby(cols + extra_col)[BARCODE]
-        .value_counts()
-        .rename('count')
-        .reset_index()
-        .sort_values(extra_col + ['count'], ascending=False)
-        .groupby(cols)
-        )
+         .drop_duplicates([WELL, TILE, READ])
+         .groupby(cols + extra_col)[BARCODE]
+         .value_counts()
+         .rename('count')
+         .reset_index()
+         .sort_values(extra_col + ['count'], ascending=False)
+         .groupby(cols)
+         )
 
     df_cells = (df_reads
-        .join(s.nth(0)[BARCODE].rename(BARCODE_0), on=cols)
-        .join(s.nth(0)['count'].rename(BARCODE_COUNT_0), on=cols)
-        .join(s.nth(1)[BARCODE].rename(BARCODE_1), on=cols)
-        .join(s.nth(1)['count'].rename(BARCODE_COUNT_1), on=cols)
-        .join(s['count'].sum() .rename(BARCODE_COUNT), on=cols)
-        .assign(**{BARCODE_COUNT_0: lambda x: x[BARCODE_COUNT_0].fillna(0),
-                    BARCODE_COUNT_1: lambda x: x[BARCODE_COUNT_1].fillna(0)})
-        .drop_duplicates(cols)
-        .drop([READ, BARCODE], axis=1)  # drop the read
-        # drop the read coordinates
-        .drop([POSITION_I, POSITION_J], axis=1)
-        .filter(regex='^(?!Q_)')  # remove read quality scores
-        .query('cell > 0')  # remove reads not in a cell
-        )
+                .join(s.nth(0)[BARCODE].rename(BARCODE_0), on=cols)
+                .join(s.nth(0)['count'].rename(BARCODE_COUNT_0), on=cols)
+                .join(s.nth(1)[BARCODE].rename(BARCODE_1), on=cols)
+                .join(s.nth(1)['count'].rename(BARCODE_COUNT_1), on=cols)
+                .join(s['count'].sum().rename(BARCODE_COUNT), on=cols)
+                .assign(**{BARCODE_COUNT_0: lambda x: x[BARCODE_COUNT_0].fillna(0),
+                           BARCODE_COUNT_1: lambda x: x[BARCODE_COUNT_1].fillna(0)})
+                .drop_duplicates(cols)
+                .drop([READ, BARCODE], axis=1)  # drop the read
+                # drop the read coordinates
+                .drop([POSITION_I, POSITION_J], axis=1)
+                .filter(regex='^(?!Q_)')  # remove read quality scores
+                .query('cell > 0')  # remove reads not in a cell
+                )
 
-    if df_pool is not None:
-        # merge guide info
-        df_cells = (pd.merge(df_cells, df_pool[[PREFIX] + guide_info_cols],
-                             how='left', left_on=BARCODE_0, right_on=PREFIX)
-            .rename({col: col + '_0' for col in guide_info_cols}, axis=1)
-            .drop(PREFIX, axis=1)
-            )
-        df_cells = (pd.merge(df_cells, df_pool[[PREFIX] + guide_info_cols],
-                             how='left', left_on=BARCODE_1, right_on=PREFIX)
-            .rename({col: col + '_1' for col in guide_info_cols}, axis=1)
-            .drop(PREFIX, axis=1)
-            )
+    # merge guide info
+    df_cells = (pd.merge(df_cells, df_pool[[PREFIX] + guide_info_cols],
+                         how='left', left_on=BARCODE_0, right_on=PREFIX)
+                .rename({col: col + '_0' for col in guide_info_cols}, axis=1)
+                .drop(PREFIX, axis=1)
+                )
+
+    df_cells = (pd.merge(df_cells, df_pool[[PREFIX] + guide_info_cols],
+                         how='left', left_on=BARCODE_1, right_on=PREFIX)
+                .rename({col: col + '_1' for col in guide_info_cols}, axis=1)
+                .drop(PREFIX, axis=1)
+                )
 
     return df_cells
 
@@ -239,7 +235,9 @@ def quality(X):
 def reads_to_fastq(df_reads, microscope='MN', dataset='DS', flowcell='FC'):
     """Convert reads to fastq format, including quality, tile position, and x,y position.
     """
+
     def wrap(x): return '{' + x + '}'
+
     def join_fields(xs): return ':'.join(map(wrap, xs))
 
     a = '@{m}:{d}:{f}'.format(m=microscope, d=dataset, f=flowcell)
@@ -303,7 +301,7 @@ def add_clusters(df_cells, barcode_col=BARCODE_0, radius=50,
     if verbose:
         print(f'searching for clusters among {num_cells} {barcode_col} objects')
     pairs = kdt.query_pairs(radius)
-    
+
     # detect clusters
     if len(pairs) == 0:
         clusters = []
@@ -327,7 +325,7 @@ def add_clusters(df_cells, barcode_col=BARCODE_0, radius=50,
     df_cells[CLUSTER] = cluster_index
     df_cells[CLUSTER_SIZE] = (df_cells
                               .groupby(CLUSTER)[barcode_col].transform('size'))
-    
+
     # objects not in a cluster have cluster size 1
     df_cells.loc[df_cells[CLUSTER] == -1, CLUSTER_SIZE] = 1
     return df_cells
