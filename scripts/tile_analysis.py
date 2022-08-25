@@ -20,6 +20,7 @@ def run(well: int,
         threshold_reads: int = 50,
         nucleus_area: tuple = (40, 400),
         DAPI_index: int = 0,
+        align_method: str = "SBS_mean",
         barcode_counts: defaultdict = None,
         ):
     if project_name not in os.getcwd():
@@ -63,7 +64,7 @@ def run(well: int,
 
     data = np.array([io.read_stack(f) for f in input_files])
 
-    data = Snake.align_SBS(data, method="SBS_mean")  # rigid alignment of sequencing cycles
+    data = Snake.align_SBS(data, method=align_method)  # rigid alignment of sequencing cycles
     # save(name(description, tag='aligned'), data, display_ranges=DISPLAY_RANGES, luts=LUTS)
 
     logged = Snake.transform_log(data, skip_index=0)  # apply Laplacian-of-Gaussian filter from scipy.ndimage.
