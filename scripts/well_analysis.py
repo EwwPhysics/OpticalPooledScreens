@@ -17,6 +17,7 @@ for tile in range(1):
         # the paths of your images. This example would match data/10x_Cycle1_Well3_Point3_0000_ChannelDAPI,G-ISS,
         # T-ISS,A-ISS,C-ISS_Seq0784.ome for example
         project_name="steph",  # name of subdirectory under `projects` where you put your data
+        barcode_csv_name="design.csv",  # name of csv file with barcode library.
         threshold_dapi=2000,  # adjust if nuclei.tif doesn't detect all nuclei or shows background spots
         threshold_cell=2500,  # adjust if cells are too big or too small
         threshold_reads=600,  # adjust if percentage of reads are in library is unexpected

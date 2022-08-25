@@ -15,6 +15,7 @@ def run(well: int,
         cycles: int,
         data_path: str,
         project_name: str = "steph",
+        barcode_csv_name: str = "design.csv",
         threshold_dapi: int = 2000,
         threshold_cell: int = 2500,
         threshold_reads: int = 50,
@@ -51,7 +52,7 @@ def run(well: int,
         [100, 6000]
     ]
 
-    barcodes = pd.read_csv('design.csv')  # list of barcodes along with which gene they target
+    barcodes = pd.read_csv(barcode_csv_name)  # list of barcodes along with which gene they target
     barcodes["prefix"] = barcodes["barcode"].apply(lambda x: x[:cycles])
     barcode_set = set(barcodes["prefix"])
 
@@ -59,7 +60,7 @@ def run(well: int,
     input_files = natsorted(glob(data_path))
 
     # used to format output filenames
-    description = {'mag': "10X", "well": wildcards["well"], 'tile': wildcards['tile'],
+    description = {'mag': "10X", "well": well, 'tile': tile,
                    'subdir': f'process_ipynb/tile{wildcards["tile"]}', 'ext': 'tif'}
 
     data = np.array([io.read_stack(f) for f in input_files])
@@ -120,6 +121,7 @@ def run(well: int,
 
     io.save_stack(filenames.name_file(description, tag='annotate_SBS'), annotate_SBS,
                   display_ranges=annotate_display_ranges, luts=annotate_luts, compress=1)
+
 
     in_library = 0
 
