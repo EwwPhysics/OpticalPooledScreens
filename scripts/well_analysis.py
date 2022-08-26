@@ -19,7 +19,7 @@ for tile in range(1):
         project_name="example",  # name of subdirectory under `projects` where you put your data
         barcode_csv_name="barcodes.csv",  # name of csv file with barcode library.
         threshold_dapi=2000,  # adjust if nuclei.tif doesn't detect all nuclei or shows background spots
-        threshold_cell=2000,  # adjust if cells are too big or too small
+        threshold_cell=1500,  # adjust if cells are too big or too small
         threshold_reads=600,  # adjust if percentage of reads are in library is unexpected
         nucleus_area=(40, 400),
         DAPI_index=0,
