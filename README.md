@@ -37,46 +37,33 @@ Additionally, if using the CellPose segmentation method, this must be installed 
 pip install cellpose[gui]
 ```
 
-## Running an example pipeline
+## Running the pipeline on example data
 
-To run the analysis pipeline with images from the [original publication](https://doi.org/10.1016/j.cell.2019.09.016), first download and install the [IBM Aspera Command Line Interface](https://www.ibm.com/support/knowledgecenter/SS4F2E_3.9/navigation/cli_welcome.html) (includes `ascp`) for interaction with the Cell-IDR databse. Then, set up an example directory:
+Simply run the `well_analysis` file! The provided example data only contains one tile.
 
-```bash
-python -m ops.paper.cell_idr setup_example example --ascp=<path/to/ascp/executable>
-```
+## Using your own data!
 
-Note that if `ascp` is in your path, you can use `--ascp==ascp`.
+1. In the `projects/` directory, create a new subdirectory for your experiment. You should add a csv file with your barcodes to this folder (specifically, with columns `barcode`, `sgRNA`, and `gene_symbol` - see `barcodes.csv` in `projects/example` for an example). Within this new subdirectory, you should add another subdirectory called `data`. Then add your images to this folder. 
 
-Run the pipeline on the example data using [snakemake](https://snakemake.readthedocs.io/en/stable/) (after activating the virtual environment):
+2. In the `scripts` directory, open `well_analysis.py`. Here, there are several factors that you will have to change based on your data. 
 
-```bash
-cd example
-snakemake --cores all --configfile=config.yaml
-```
-
-## Additional example data
-
-An example tile of 12-cycle SBS data is available in the original OpticalPooledScreens repository [here](https://github.com/feldman4/OpticalPooledScreens_2019/tree/master/example_data).
-
-Additionally, all screening data presented in the [original publication](https://doi.org/10.1016/j.cell.2019.09.016) can be easily accessed from the public [Cell-IDR](https://idr.openmicroscopy.org/cell/) database (study `idr0071`) using `ascp` similar to above for the example pipeline:
-
-```bash
-python -m ops.paper.cell_idr get_cell_idr \
-<destination> \
---experiment=<experiment> \
---well=<well> \
---tile=<tile> \
---ascp=<path/to/ascp/executable>
-```
-The following experiments are available:
-
-| Cell-IDR experiment | Dataset |
-|---------------------|---------|
-| A | static p65-mNeonGreen screen in HeLa cells |
-| B | static p65 antibody screen in HeLa cells |
-| C | static p65 antibody screen in A549 cells |
-| D | static p65 antibody screen in HCT-116 cells |
-| E | Frameshift reporter screen in HeLa cells |
-| F | Detection of combinatorial perturbations in HeLa cells |
-
-Both `well` and `tile` can be set to `all` to download the full dataset. Figures 3 & 4 in the Nature Protocols manuscript were made using data from experiment C; functions for reproducing these figures are available [here](https://github.com/feldman4/NatureProtocols/tree/master/ops/paper).
+3. The final argument passed to `os.path.join()` should be changed to whatever your experiment’s directory is called. (`os.chdir(os.path.join(*home, 'projects', "example"))`)
+4. The file contains a loop, which iterates over a range to run the analysis on each tile number. This should be changed accordingly based on your data. For example, if you had 100 tiles, the loop declaration should be: `for tile in range(100)`.Note that if your numbering starts from 1, not 0, you will have to use a slightly different range: `for tile in range(1, 101)`
+5. The main loop in  well_analysis.py calls a function from tile_analysis.py with many keyword arguments. Here, I will describe what each argument means
+   1. `well` - should be the well number from your experiment. This is important for naming files and reading your images.
+   2. `tile` - you shouldn’t have to change this, if you followed the instructions in step 4.
+   3. `cycles` - the number of imaging cycles in your experiment.
+   4. `data_path` - this should reflect what the path to your images looks like, including the file names of the images. The goal is to match the images of the current tile from each cycle. It should start with the name of the subdirectory in your project folder that has all of your data. From here, it can vary.
+      1. \* matches any number of any character. It would match “”, “h”, “hello”, “hhh”, etc. This is useful if there’s a value that can vary that you don’t care about, or if you don’t want to write out the whole path.
+      2. If your cycles are each in different folders, should start with something like data/cycle*/
+      3. See the example in the well_analysis file, this should help you figure out how to change the pattern so that it’ll match your files
+      4. Here’s an article about f-strings if you’re confused about the curly braces in the string! 
+   5. `project_name` - this should be the name of the subdirectory in `projects/` that you created
+   6. `barcode_csv_name` - the name of the csv file which has the barcode library, which you added in step 2
+   7. Thresholds - you will have to change these if the program isn’t detecting nuclei/cells/reads correctly. You won’t be able to determine whether they have to be changed until you have tried running the program. Once you run it, it should produce a nuclei.tif file, a cells.tif file, and a cells.csv file (among other files). If background spots are appearing on the nuclei file, for example, you should raise the dapi threshold. 
+   8. `nucleus_area` probably shouldn’t have to be changed. Idk
+   9. `DAPI_index` will change if you didn’t stain with DAPI on the first cycle. Remember that this is 0-indexed (the first cycle is zero). So if you stained on the 11th cycle, you would change this argument to 10. If you stained on all cycles, the number shouldn’t matter.
+   10. `align_method` can be changed to DAPI if you stained with DAPI on all cycles. But it should work either way.
+   11. `barcode_counts` shouldn’t have to be changed.
+   
+After running, all the output files should be in the `process_ipynb/` subdirectory of your experiment’s folder.
