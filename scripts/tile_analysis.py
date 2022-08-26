@@ -11,7 +11,7 @@ from ops.firesnake import Snake
 
 
 def run(well: int,
-        tile,
+        tile: int,
         cycles: int,
         data_path: str,
         project_name: str = "steph",
@@ -25,6 +25,7 @@ def run(well: int,
         barcode_counts: defaultdict = None,
         ):
     if project_name not in os.getcwd():
+        print(os.getcwd())
         home = os.path.split(os.getcwd())[:-1]
         os.chdir(os.path.join(*home, 'projects', project_name))
     print(os.getcwd())
@@ -65,11 +66,18 @@ def run(well: int,
 
     data = np.array([io.read_stack(f) for f in input_files])
 
-    data = Snake.align_SBS(data, method=align_method)  # rigid alignment of sequencing cycles
-    # save(name(description, tag='aligned'), data, display_ranges=DISPLAY_RANGES, luts=LUTS)
-
-    logged = Snake.transform_log(data, skip_index=0)  # apply Laplacian-of-Gaussian filter from scipy.ndimage.
-    # save(name(description, tag='log'), logged, display_ranges=DISPLAY_RANGES, luts=LUTS)
+    if align_method == "SBS_mean":
+        data = Snake.align_SBS(data, method='SBS_mean')  # rigid alignment of sequencing cycles
+        # save(name(description, tag='aligned'), data, display_ranges=DISPLAY_RANGES, luts=LUTS)
+        logged = Snake.transform_log(data, skip_index=0)  # apply Laplacian-of-Gaussian filter from scipy.ndimage.
+        # save(name(description, tag='log'), logged, display_ranges=DISPLAY_RANGES, luts=LUTS)
+    elif align_method == "DAPI":
+        aligned = Snake.align_SBS(data, method="DAPI")  # rigid alignment of sequencing cycles
+        # save(name(description, tag='aligned'), data, display_ranges=DISPLAY_RANGES, luts=LUTS)
+        logged = Snake.transform_log(aligned, skip_index=0)  # apply Laplacian-of-Gaussian filter from scipy.ndimage.
+        # save(name(description, tag='log'), logged, display_ranges=DISPLAY_RANGES, luts=LUTS)
+    else:
+        raise ValueError("align method must be SBS_mean or DAPI.")
 
     maxed = Snake.max_filter(logged, 3, remove_index=0)  # apply a maximum filter in a window of `width`.
     # Conventionally operates on Laplacian-of-Gaussian filtered SBS data, dilating sequencing channels to compensate
