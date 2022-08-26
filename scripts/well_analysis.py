@@ -5,21 +5,21 @@ import pandas as pd
 
 barcode_counts = defaultdict(int)
 home = os.path.split(os.getcwd())[:-1]
-os.chdir(os.path.join(*home, 'projects', "steph"))
+os.chdir(os.path.join(*home, 'projects', "example"))
 
-for tile in range(3):
+for tile in range(1):
     # change these values based on your data!
     tile_analysis.run(
-        well=3,
-        tile=tile,
-        cycles=11,
-        data_path=f'data/10x_Cycle*_Well{3}_Point3_{str(tile).rjust(4, "0")}*.ome.tif',  # change so it will match
+        well=1,
+        tile=107,
+        cycles=12,
+        data_path=f'input/*/*.tif',  # change so it will match
         # the paths of your images. This example would match data/10x_Cycle1_Well3_Point3_0000_ChannelDAPI,G-ISS,
         # T-ISS,A-ISS,C-ISS_Seq0784.ome for example
-        project_name="steph",  # name of subdirectory under `projects` where you put your data
-        barcode_csv_name="design.csv",  # name of csv file with barcode library.
+        project_name="example",  # name of subdirectory under `projects` where you put your data
+        barcode_csv_name="barcodes.csv",  # name of csv file with barcode library.
         threshold_dapi=2000,  # adjust if nuclei.tif doesn't detect all nuclei or shows background spots
-        threshold_cell=2500,  # adjust if cells are too big or too small
+        threshold_cell=2000,  # adjust if cells are too big or too small
         threshold_reads=600,  # adjust if percentage of reads are in library is unexpected
         nucleus_area=(40, 400),
         DAPI_index=0,
