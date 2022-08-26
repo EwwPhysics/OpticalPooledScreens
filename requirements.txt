@@ -4,7 +4,6 @@ imageio==2.21.1
 natsort==8.1.0
 networkx==2.8.6
 numpy==1.23.2
--e git+https://github.com/EwwPhysics/OpticalPooledScreens.git@b06f1970e2c2c268b76b42808f45a3f5f70f3f21#egg=ops_lasagna
 packaging==21.3
 pandas==1.4.3
 Pillow==9.2.0
