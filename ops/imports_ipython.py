@@ -5,8 +5,8 @@ from .firesnake import Snake
 from .process import Align
 
 import IPython
-IPython.get_ipython().run_line_magic('load_ext', 'autoreload')
-IPython.get_ipython().run_line_magic('autoreload', '2')
+# IPython.get_ipython().run_line_magic('load_ext', 'autoreload')
+# IPython.get_ipython().run_line_magic('autoreload', '2')
 
 
 import matplotlib.pyplot as plt

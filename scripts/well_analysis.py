@@ -7,7 +7,7 @@ barcode_counts = defaultdict(int)
 home = os.path.split(os.getcwd())[:-1]
 os.chdir(os.path.join(*home, 'projects', "steph"))
 
-for tile in range(1):
+for tile in range(3):
     # change these values based on your data!
     tile_analysis.run(
         well=3,
@@ -27,7 +27,7 @@ for tile in range(1):
         barcode_counts=barcode_counts,
     )
 
-    print(sum(barcode_counts.values()) / (pd.read_csv("process_ipynb/cells.csv").shape[0] * 2) * 100)  # print
+    print(sum(barcode_counts.values()) / sum(pd.read_csv("process_ipynb/cells.csv")["barcode_count"]) * 100)  # print
     # percentage of reads are found in barcode library
 
 print(sorted(barcode_counts.items(), key=lambda x: x[1], reverse=True))  # print all barcodes which are found in

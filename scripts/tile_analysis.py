@@ -11,7 +11,7 @@ from ops.firesnake import Snake
 
 
 def run(well: int,
-        tile: int,
+        tile,
         cycles: int,
         data_path: str,
         project_name: str = "steph",
@@ -27,7 +27,7 @@ def run(well: int,
     if project_name not in os.getcwd():
         home = os.path.split(os.getcwd())[:-1]
         os.chdir(os.path.join(*home, 'projects', project_name))
-        print(os.getcwd())
+    print(os.getcwd())
 
     wildcards = {"well": well, "tile": tile}
     if barcode_counts is None:
@@ -122,9 +122,7 @@ def run(well: int,
     io.save_stack(filenames.name_file(description, tag='annotate_SBS'), annotate_SBS,
                   display_ranges=annotate_display_ranges, luts=annotate_luts, compress=1)
 
-
     in_library = 0
-
     for index, row in df_cells.iterrows():
         b0 = row["barcode_0"]
         b1 = row["barcode_1"]

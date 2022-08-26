@@ -9,7 +9,7 @@ venv/
 ops_lasagna.egg-info
 .idea/
 
-projects/example/experimentC/process_ipynb/
+projects/example/process_ipynb/
 /projects/example/.snakemake/
 projects/steph/process_ipynb
 projects/steph/data
