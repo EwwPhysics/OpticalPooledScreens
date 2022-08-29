@@ -3,14 +3,14 @@ from collections import defaultdict
 import os
 import pandas as pd
 
-barcode_counts = defaultdict(int)
+barcode_counts = defaultdict(int)  # stores the number of times each barcode appears in the dataset
 home = os.path.split(os.getcwd())[:-1]
 os.chdir(os.path.join(*home, 'projects', "example"))
 
 if os.path.exists("process_ipynb/cells.csv"):
     os.remove("process_ipynb/cells.csv")
 
-for tile in range(1):
+for tile in range(3):
     # change these values based on your data!
     tile_analysis.run(
         well=1,
@@ -31,7 +31,7 @@ for tile in range(1):
     )
 
     print(sum(barcode_counts.values()) / sum(pd.read_csv("process_ipynb/cells.csv")["barcode_count"]) * 100)  # print
-    # percentage of reads are found in barcode library
+    # what percentage of reads are found in barcode library
 
 print(sorted(barcode_counts.items(), key=lambda x: x[1], reverse=True))  # print all barcodes which are found in
 # the barcode library, in order from most to least common

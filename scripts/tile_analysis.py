@@ -130,15 +130,12 @@ def run(well: int,
     io.save_stack(filenames.name_file(description, tag='annotate_SBS'), annotate_SBS,
                   display_ranges=annotate_display_ranges, luts=annotate_luts, compress=1)
 
-    in_library = 0
+    # update barcode_counts with reads from new tile
     for index, row in df_cells.iterrows():
         b0 = row["barcode_0"]
         b1 = row["barcode_1"]
+        # only count reads found in the barcode library
         if b0 in barcode_set:
             barcode_counts[b0] += int(row["count_0"])
-            in_library += int(row["count_0"])
         if b1 in barcode_set:
-            barcode_counts[b1] += int(float(row["count_1"]))
-            in_library += int(float(row["count_1"]))
-
-    # print(in_library / (df_cells.shape[0] * 2) * 100)
+            barcode_counts[b1] += float(row["count_1"])
