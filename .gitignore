@@ -12,3 +12,6 @@ ops_lasagna.egg-info
 projects/example/process_ipynb/
 /projects/example/.snakemake/
 projects/steph/
+
+scripts/example_image_analysis.ipynb
+scripts/steph_image_analysis.ipynb
