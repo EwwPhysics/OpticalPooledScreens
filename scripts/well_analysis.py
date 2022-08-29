@@ -7,6 +7,9 @@ barcode_counts = defaultdict(int)
 home = os.path.split(os.getcwd())[:-1]
 os.chdir(os.path.join(*home, 'projects', "example"))
 
+if os.path.exists("process_ipynb/cells.csv"):
+    os.remove("process_ipynb/cells.csv")
+
 for tile in range(1):
     # change these values based on your data!
     tile_analysis.run(
@@ -20,7 +23,7 @@ for tile in range(1):
         barcode_csv_name="barcodes.csv",  # name of csv file with barcode library.
         threshold_dapi=2000,  # adjust if nuclei.tif doesn't detect all nuclei or shows background spots
         threshold_cell=1500,  # adjust if cells are too big or too small
-        threshold_reads=600,  # adjust if percentage of reads are in library is unexpected
+        threshold_reads=500,  # adjust if percentage of reads that are in library is unexpected
         nucleus_area=(40, 400),
         DAPI_index=0,
         align_method="SBS_mean",  # should be "SBS_mean" or "DAPI"
@@ -32,7 +35,6 @@ for tile in range(1):
 
 print(sorted(barcode_counts.items(), key=lambda x: x[1], reverse=True))  # print all barcodes which are found in
 # the barcode library, in order from most to least common
-os.remove("process_ipynb/cells.csv")
 
 # 500 - 7.54
 # 600 - 7.82
