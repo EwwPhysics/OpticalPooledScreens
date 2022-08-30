@@ -16,9 +16,7 @@ for tile in range(3):
         well=1,
         tile=107,
         cycles=12,
-        data_path=f'input/*/*.tif',  # change so it will match
-        # the paths of your images. This example would match data/10x_Cycle1_Well3_Point3_0000_ChannelDAPI,G-ISS,
-        # T-ISS,A-ISS,C-ISS_Seq0784.ome for example
+        data_path=f'input/*/*.tif',  # change so it will match the paths of your images.
         project_name="example",  # name of subdirectory under `projects` where you put your data
         barcode_csv_name="barcodes.csv",  # name of csv file with barcode library.
         threshold_dapi=2000,  # adjust if nuclei.tif doesn't detect all nuclei or shows background spots
